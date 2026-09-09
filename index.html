@@ -87,7 +87,7 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Statistics Bar -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+            <div onclick="setStatusFilter('all')" id="stat-card-all" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
                 <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">
                     <i class="fa-solid fa-boxes-stacked"></i>
                 </div>
@@ -96,7 +96,7 @@
                     <h3 id="stat-total" class="text-2xl font-bold text-slate-900">0</h3>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+            <div onclick="setStatusFilter('expiring')" id="stat-card-expiring" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
@@ -105,7 +105,7 @@
                     <h3 id="stat-expiring" class="text-2xl font-bold text-amber-600">0</h3>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+            <div onclick="setStatusFilter('expired')" id="stat-card-expired" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
                 <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
@@ -114,6 +114,12 @@
                     <h3 id="stat-expired" class="text-2xl font-bold text-rose-600">0</h3>
                 </div>
             </div>
+        </div>
+
+        <!-- Active Filter Indicator Banner -->
+        <div id="active-filter-banner" class="hidden items-center justify-between bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl mb-6 text-xs font-medium text-amber-900">
+            <span id="active-filter-text">Showing filtered items</span>
+            <button onclick="setStatusFilter('all')" class="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer">Clear Filter</button>
         </div>
 
         <!-- Search and Filter Bar -->
@@ -414,6 +420,7 @@
             ? JSON.parse(localStorage.getItem('pantry_sauce_rack_open')) 
             : true;
 
+        let currentStatusFilter = 'all'; // 'all', 'expiring', 'expired'
         let editingType = 'sauce';
         let editingIndex = null;
 
@@ -430,7 +437,29 @@
             // Explicitly apply collapsible states on load
             updateSpiceRackUI();
             updateSauceRackUI();
+            updateStatCardStyles();
         };
+
+        function setStatusFilter(filter) {
+            currentStatusFilter = currentStatusFilter === filter ? 'all' : filter;
+            updateStatCardStyles();
+            filterItems();
+        }
+
+        function updateStatCardStyles() {
+            const cardAll = document.getElementById('stat-card-all');
+            const cardExpiring = document.getElementById('stat-card-expiring');
+            const cardExpired = document.getElementById('stat-card-expired');
+            
+            if (!cardAll) return;
+
+            cardAll.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+                (currentStatusFilter === 'all' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-slate-300');
+            cardExpiring.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+                (currentStatusFilter === 'expiring' ? 'border-amber-500 ring-2 ring-amber-100' : 'border-slate-200 hover:border-amber-300');
+            cardExpired.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+                (currentStatusFilter === 'expired' ? 'border-rose-500 ring-2 ring-rose-100' : 'border-slate-200 hover:border-rose-300');
+        }
 
         function openHomeGuide() {
             document.getElementById('home-guide-modal').classList.remove('hidden');
@@ -837,14 +866,45 @@
             const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
             const selectedCategory = document.getElementById('category-filter').value;
             
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
             const filtered = pantryItems.filter(item => {
                 const matchesSearch = !searchTerm || 
                     item.name.toLowerCase().includes(searchTerm) || 
                     (item.notes && item.notes.toLowerCase().includes(searchTerm)) ||
                     item.category.toLowerCase().includes(searchTerm);
                 const matchesCategory = !selectedCategory || item.category === selectedCategory;
-                return matchesSearch && matchesCategory;
+                
+                let matchesStatus = true;
+                if (currentStatusFilter !== 'all' && item.expiryDate) {
+                    const exp = new Date(item.expiryDate);
+                    exp.setHours(0, 0, 0, 0);
+                    const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+                    if (currentStatusFilter === 'expired') {
+                        matchesStatus = diffDays < 0;
+                    } else if (currentStatusFilter === 'expiring') {
+                        matchesStatus = diffDays >= 0 && diffDays <= 7;
+                    }
+                } else if (currentStatusFilter !== 'all' && !item.expiryDate) {
+                    matchesStatus = false;
+                }
+
+                return matchesSearch && matchesCategory && matchesStatus;
             });
+
+            const banner = document.getElementById('active-filter-banner');
+            const bannerText = document.getElementById('active-filter-text');
+            if (banner) {
+                if (currentStatusFilter !== 'all') {
+                    banner.classList.remove('hidden');
+                    banner.classList.add('flex');
+                    bannerText.textContent = currentStatusFilter === 'expired' ? 'Showing Expired items only' : 'Showing Expiring Soon items (within 7 days) only';
+                } else {
+                    banner.classList.add('hidden');
+                    banner.classList.remove('flex');
+                }
+            }
 
             displayItems(filtered);
         }
