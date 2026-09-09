@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +215,7 @@
                 <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider"><i class="fa-solid fa-list mr-2 text-amber-600"></i>Pantry Quick Summary</h3>
                 <span id="compact-count" class="text-xs font-semibold text-slate-500">0 items</span>
             </div>
-            <div class="divide-y divide-slate-100 overflow-x-auto">
+            <div class="overflow-x-auto">
                 <div id="compact-items-container">
                     <!-- Dynamically populated rows -->
                 </div>
@@ -943,36 +944,29 @@
                     const status = getExpiryStatus(item.expiryDate);
                     const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
                     return `
-                        <div class="px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition print-card">
-                            <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-center gap-2 mb-1">
-                                    <h4 class="font-bold text-slate-900 text-sm leading-snug">${item.name}</h4>
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">${item.category}</span>
-                                </div>
-                                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                                    <span class="font-semibold text-amber-800"><i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i>${item.quantity} ${item.unit}</span>
-                                    <span>•</span>
-                                    <span><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date'}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                <div class="hidden md:flex flex-col items-end w-24">
-                                    <div class="flex justify-between items-center text-[10px] mb-1 w-full">
-                                        <span class="text-slate-500 font-medium">Left</span>
-                                        <span class="font-bold text-slate-800">${level}%</span>
+                        <div class="px-4 sm:px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition print-card">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                                        <h4 class="font-bold text-slate-900 text-sm leading-snug">${item.name}</h4>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">${item.category}</span>
                                     </div>
-                                    <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                                        <div class="bg-amber-500 h-full rounded-full" style="width: ${level}%"></div>
+                                    <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                        <span class="font-semibold text-amber-800"><i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i>${item.quantity} ${item.unit}</span>
+                                        <span>•</span>
+                                        <span><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date'}</span>
                                     </div>
                                 </div>
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium ${status.class}">${status.text}</span>
-                                <div class="flex items-center space-x-1.5 no-print">
-                                    <button onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                <div class="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium ${status.class}">${status.text}</span>
+                                    <div class="flex items-center space-x-1.5 no-print">
+                                        <button onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
