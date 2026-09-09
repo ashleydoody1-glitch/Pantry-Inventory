@@ -67,34 +67,34 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Statistics Bar -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div onclick="setStatusFilter('all')" id="stat-card-all" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Statistics Bar (Compact) -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+            <div onclick="setStatusFilter('all')" id="stat-card-all" class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm sm:text-base font-bold shrink-0">
                     <i class="fa-solid fa-boxes-stacked"></i>
                 </div>
-                <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Items</p>
-                    <h3 id="stat-total" class="text-2xl font-bold text-slate-900">0</h3>
+                <div class="min-w-0">
+                    <p class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider truncate">Total</p>
+                    <h3 id="stat-total" class="text-lg sm:text-2xl font-bold text-slate-900">0</h3>
                 </div>
             </div>
-            <div onclick="setStatusFilter('expiring')" id="stat-card-expiring" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+            <div onclick="setStatusFilter('expiring')" id="stat-card-expiring" class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm sm:text-base font-bold shrink-0">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-                <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Expiring Soon</p>
-                    <h3 id="stat-expiring" class="text-2xl font-bold text-amber-600">0</h3>
+                <div class="min-w-0">
+                    <p class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider truncate">Expiring</p>
+                    <h3 id="stat-expiring" class="text-lg sm:text-2xl font-bold text-amber-600">0</h3>
                 </div>
             </div>
-            <div onclick="setStatusFilter('expired')" id="stat-card-expired" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4 cursor-pointer transition">
-                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
+            <div onclick="setStatusFilter('expired')" id="stat-card-expired" class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm sm:text-base font-bold shrink-0">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
-                <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Expired</p>
-                    <h3 id="stat-expired" class="text-2xl font-bold text-rose-600">0</h3>
+                <div class="min-w-0">
+                    <p class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider truncate">Expired</p>
+                    <h3 id="stat-expired" class="text-lg sm:text-2xl font-bold text-rose-600">0</h3>
                 </div>
             </div>
         </div>
@@ -445,11 +445,11 @@
             
             if (!cardAll) return;
 
-            cardAll.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+            cardAll.className = "bg-white p-3 sm:p-4 rounded-2xl border shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition " + 
                 (currentStatusFilter === 'all' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-slate-300');
-            cardExpiring.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+            cardExpiring.className = "bg-white p-3 sm:p-4 rounded-2xl border shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition " + 
                 (currentStatusFilter === 'expiring' ? 'border-amber-500 ring-2 ring-amber-100' : 'border-slate-200 hover:border-amber-300');
-            cardExpired.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
+            cardExpired.className = "bg-white p-3 sm:p-4 rounded-2xl border shadow-sm flex items-center space-x-2.5 sm:space-x-3 cursor-pointer transition " + 
                 (currentStatusFilter === 'expired' ? 'border-rose-500 ring-2 ring-rose-100' : 'border-slate-200 hover:border-rose-300');
         }
 
@@ -716,7 +716,7 @@
                                     ${spice.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${spice.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
                                 </td>
                                 <td class="py-3 px-3 text-right">
-                                    <div class="flex items-center justify-end space-x-1.5">
+                                    <div class="flex items-center justify-end space-x-1.5 flex-row">
                                         <button type="button" onclick="editItemModal('spice', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
@@ -762,7 +762,7 @@
                                     ${sauce.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${sauce.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
                                 </td>
                                 <td class="py-3 px-3 text-right">
-                                    <div class="flex items-center justify-end space-x-1.5">
+                                    <div class="flex items-center justify-end space-x-1.5 flex-row">
                                         <button type="button" onclick="editItemModal('sauce', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
@@ -991,19 +991,19 @@
 
                 compactContainer.innerHTML = items.map(item => {
                     return `
-                        <div class="px-4 sm:px-6 py-3 hover:bg-slate-50 transition print-card">
-                            <div class="mb-1.5 flex items-start justify-between gap-2">
-                                <h4 class="font-bold text-slate-900 text-sm leading-snug break-words">${item.name}</h4>
-                                <div class="flex items-center space-x-2 shrink-0">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">${item.category}</span>
-                                    <div class="flex items-center space-x-1.5 no-print">
-                                        <button type="button" onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-                                        <button type="button" onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </div>
+                        <div class="px-4 sm:px-6 py-3 transition print-card">
+                            <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center space-x-2 min-w-0 flex-1">
+                                    <h4 class="font-bold text-slate-900 text-sm leading-snug break-words">${item.name}</h4>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 shrink-0">${item.category}</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5 no-print shrink-0 flex-row">
+                                    <button type="button" onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
@@ -1053,7 +1053,7 @@
                             </div>
                             <div class="px-6 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between no-print">
                                 <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date set'}</span>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2 flex-row">
                                     <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
