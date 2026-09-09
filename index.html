@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,7 +105,7 @@
             <button onclick="setStatusFilter('all')" class="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer">Clear Filter</button>
         </div>
 
-        <!-- Search and Filter Bar (Moved Above Racks) -->
+        <!-- Search and Filter Bar -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
             <div class="relative flex-1 max-w-md">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -165,8 +164,8 @@
                 </div>
             </div>
             <div id="spice-rack-content" class="pt-4 border-t border-slate-100 mt-4">
-                <div id="spice-tags-container" class="flex flex-wrap gap-2 items-center min-h-[40px]">
-                    <!-- Dynamically populated spice tags -->
+                <div id="spice-tags-container" class="overflow-x-auto">
+                    <!-- Dynamically populated spice table -->
                 </div>
             </div>
         </div>
@@ -198,8 +197,8 @@
                 </div>
             </div>
             <div id="sauce-rack-content" class="pt-4 border-t border-slate-100 mt-4">
-                <div id="sauce-tags-container" class="flex flex-wrap gap-2 items-center min-h-[40px]">
-                    <!-- Dynamically populated sauce tags -->
+                <div id="sauce-tags-container" class="overflow-x-auto">
+                    <!-- Dynamically populated sauce table -->
                 </div>
             </div>
         </div>
@@ -697,16 +696,38 @@
                 return;
             }
 
-            container.innerHTML = pantrySpices.map((spice, idx) => `
-                <span class="inline-flex items-center bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium px-3 py-1.5 rounded-xl shadow-xs group">
-                    <i class="fa-solid fa-pepper-hot mr-1.5 text-amber-600"></i>
-                    <span onclick="editItemModal('spice', ${idx})" class="cursor-pointer hover:underline font-semibold" title="Click to edit">${spice.name}</span>
-                    ${spice.qty ? `<span class="ml-1 text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer" onclick="editItemModal('spice', ${idx})" title="Click to edit">${spice.qty}</span>` : ''}
-                    <button type="button" onclick="removeQuickSpice('${spice.name.replace(/'/g, "\\'")}')" class="ml-2 text-amber-400 hover:text-rose-600 transition cursor-pointer" title="Remove">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </span>
-            `).join('');
+            container.innerHTML = `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            <th class="py-2.5 px-3">Spice / Herb</th>
+                            <th class="py-2.5 px-3">Qty / Notes</th>
+                            <th class="py-2.5 px-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs">
+                        ${pantrySpices.map((spice, idx) => `
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3 font-semibold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-pepper-hot text-amber-600 mr-2 text-[10px]"></i>
+                                    <span>${spice.name}</span>
+                                </td>
+                                <td class="py-3 px-3 text-slate-600">
+                                    ${spice.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${spice.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
+                                </td>
+                                <td class="py-3 px-3 text-right space-x-1">
+                                    <button type="button" onclick="editItemModal('spice', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" onclick="removeQuickSpice('${spice.name.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         function renderSauces() {
@@ -717,16 +738,38 @@
                 return;
             }
 
-            container.innerHTML = pantrySauces.map((sauce, idx) => `
-                <span class="inline-flex items-center bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium px-3 py-1.5 rounded-xl shadow-xs group">
-                    <i class="fa-solid fa-bottle-droplet mr-1.5 text-amber-600"></i>
-                    <span onclick="editItemModal('sauce', ${idx})" class="cursor-pointer hover:underline font-semibold" title="Click to edit">${sauce.name}</span>
-                    ${sauce.qty ? `<span class="ml-1 text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer" onclick="editItemModal('sauce', ${idx})" title="Click to edit">${sauce.qty}</span>` : ''}
-                    <button type="button" onclick="removeQuickSauce('${sauce.name.replace(/'/g, "\\'")}')" class="ml-2 text-amber-400 hover:text-rose-600 transition cursor-pointer" title="Remove">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </span>
-            `).join('');
+            container.innerHTML = `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            <th class="py-2.5 px-3">Sauce / Condiment</th>
+                            <th class="py-2.5 px-3">Qty / Notes</th>
+                            <th class="py-2.5 px-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs">
+                        ${pantrySauces.map((sauce, idx) => `
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3 font-semibold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-bottle-droplet text-amber-600 mr-2 text-[10px]"></i>
+                                    <span>${sauce.name}</span>
+                                </td>
+                                <td class="py-3 px-3 text-slate-600">
+                                    ${sauce.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${sauce.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
+                                </td>
+                                <td class="py-3 px-3 text-right space-x-1">
+                                    <button type="button" onclick="editItemModal('sauce', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" onclick="removeQuickSauce('${sauce.name.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         function showToast(message, type = 'success') {
@@ -941,14 +984,13 @@
                 compactCount.textContent = `${items.length} item${items.length === 1 ? '' : 's'}`;
 
                 compactContainer.innerHTML = items.map(item => {
-                    const status = getExpiryStatus(item.expiryDate);
                     const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
                     return `
-                        <div class="px-4 sm:px-6 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition print-card">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="px-4 sm:px-6 py-4 hover:bg-slate-50 transition print-card">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2 mb-1">
-                                        <h4 class="font-bold text-slate-900 text-sm leading-snug">${item.name}</h4>
+                                        <h4 class="font-bold text-slate-900 text-sm leading-snug break-words">${item.name}</h4>
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">${item.category}</span>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -957,18 +999,16 @@
                                         <span><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date'}</span>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium ${status.class}">${status.text}</span>
-                                    <div class="flex items-center space-x-1.5 no-print">
-                                        <button onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-                                        <button onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </div>
+                                <div class="flex items-center space-x-1.5 no-print">
+                                    <button type="button" onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
+                            <div class="border-t border-slate-100 mt-3 pt-1"></div>
                         </div>
                     `;
                 }).join('');
