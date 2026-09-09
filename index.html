@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -428,13 +427,9 @@
             renderSpices();
             renderSauces();
 
-            // Restore collapsible states
-            if (!isSpiceRackOpen) {
-                toggleSpiceRack();
-            }
-            if (!isSauceRackOpen) {
-                toggleSauceRack();
-            }
+            // Explicitly apply collapsible states on load
+            updateSpiceRackUI();
+            updateSauceRackUI();
         };
 
         function openHomeGuide() {
@@ -495,6 +490,10 @@
         function toggleSpiceRack() {
             isSpiceRackOpen = !isSpiceRackOpen;
             localStorage.setItem('pantry_spice_rack_open', JSON.stringify(isSpiceRackOpen));
+            updateSpiceRackUI();
+        }
+
+        function updateSpiceRackUI() {
             const content = document.getElementById('spice-rack-content');
             const icon = document.getElementById('spice-toggle-icon');
             const iconMob = document.getElementById('spice-toggle-icon-mob');
@@ -513,6 +512,10 @@
         function toggleSauceRack() {
             isSauceRackOpen = !isSauceRackOpen;
             localStorage.setItem('pantry_sauce_rack_open', JSON.stringify(isSauceRackOpen));
+            updateSauceRackUI();
+        }
+
+        function updateSauceRackUI() {
             const content = document.getElementById('sauce-rack-content');
             const icon = document.getElementById('sauce-toggle-icon');
             const iconMob = document.getElementById('sauce-toggle-icon-mob');
