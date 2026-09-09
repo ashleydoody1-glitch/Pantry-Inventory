@@ -25,6 +25,19 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
+    <!-- Content URI Warning Banner (Shows if opened via Files app content:// link) -->
+    <div id="content-uri-banner" class="hidden bg-amber-500 text-white px-4 py-3 text-xs sm:text-sm font-medium shadow-md relative z-40 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 text-center sm:text-left">
+                <i class="fa-solid fa-triangle-exclamation text-amber-100 text-lg flex-shrink-0"></i>
+                <span><b>Cannot Add to Home Screen?</b> Chrome blocks "content://" links. Save the file to your <b>Downloads</b> folder and open it via a file manager.</span>
+            </div>
+            <button onclick="openHomeGuide()" class="bg-white text-amber-900 hover:bg-amber-50 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm whitespace-nowrap cursor-pointer">
+                View Quick Fix Guide
+            </button>
+        </div>
+    </div>
+
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -33,7 +46,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">PantryPal</h1>
-                    <p class="text-xs text-slate-500">Keep track of your cooking ingredients</p>
+                    <p class="text-xs text-slate-500">Cooking & Baking Ingredients</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-3">
@@ -43,7 +56,7 @@
                         <i class="fa-solid fa-download"></i>
                         <span class="hidden sm:inline">Data</span>
                     </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 hidden group-hover:block z-50">
+                    <div class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1 hidden group-hover:block z-50">
                         <button onclick="exportData()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-2">
                             <i class="fa-solid fa-file-arrow-down text-amber-600 w-4"></i>
                             <span>Export Backup (JSON)</span>
@@ -55,6 +68,10 @@
                         <button onclick="printPantry()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-2 border-t border-slate-100">
                             <i class="fa-solid fa-print text-amber-600 w-4"></i>
                             <span>Print / Save as PDF</span>
+                        </button>
+                        <button onclick="openHomeGuide()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-amber-700 hover:bg-amber-50 flex items-center space-x-2 border-t border-slate-100">
+                            <i class="fa-solid fa-mobile-screen text-amber-600 w-4"></i>
+                            <span>Home Screen Guide</span>
                         </button>
                     </div>
                 </div>
@@ -106,7 +123,7 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <i class="fa-solid fa-search"></i>
                 </span>
-                <input type="text" id="search-input" oninput="filterItems()" placeholder="Search ingredients (e.g., flour, olive oil)..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm">
+                <input type="text" id="search-input" oninput="filterItems()" placeholder="Search ingredients (e.g., flour, butter)..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm">
             </div>
             <div class="flex items-center space-x-3 overflow-x-auto pb-2 sm:pb-0">
                 <select id="category-filter" onchange="filterItems()" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
@@ -122,7 +139,7 @@
             </div>
         </div>
 
-        <!-- Quick Spice & Herb Rack -->
+        <!-- Quick Spice & Herb Rack (Collapsible) -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer select-none" onclick="toggleSpiceRack()">
                 <div class="flex items-center justify-between w-full sm:w-auto">
@@ -130,10 +147,10 @@
                         <h2 class="text-lg font-bold text-slate-900 flex items-center">
                             <i class="fa-solid fa-seedling text-amber-600 mr-2"></i>Quick Spice & Herb Rack
                         </h2>
-                        <p class="text-xs text-slate-500">Type multiple herbs and spices quickly (separate with commas)</p>
+                        <p class="text-xs text-slate-500">Type multiple herbs & spices quickly (separate with commas)</p>
                     </div>
                     <button type="button" class="sm:hidden text-slate-400 hover:text-slate-600 p-1">
-                        <i id="spice-toggle-icon-mob" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                        <i id="spice-toggle-icon-mob" class="fa-solid fa-chevron-up transition-transform duration-200"></i>
                     </button>
                 </div>
                 <div class="flex items-center justify-between w-full sm:w-auto gap-4">
@@ -144,7 +161,7 @@
                         </button>
                     </form>
                     <button type="button" class="hidden sm:flex text-slate-400 hover:text-slate-600 p-1 items-center justify-center">
-                        <i id="spice-toggle-icon" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                        <i id="spice-toggle-icon" class="fa-solid fa-chevron-up transition-transform duration-200"></i>
                     </button>
                 </div>
             </div>
@@ -155,7 +172,7 @@
             </div>
         </div>
 
-        <!-- Quick Sauce & Condiment Rack -->
+        <!-- Quick Sauce & Condiment Rack (Collapsible) -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer select-none" onclick="toggleSauceRack()">
                 <div class="flex items-center justify-between w-full sm:w-auto">
@@ -166,7 +183,7 @@
                         <p class="text-xs text-slate-500">Type multiple sauces quickly (separate with commas)</p>
                     </div>
                     <button type="button" class="sm:hidden text-slate-400 hover:text-slate-600 p-1">
-                        <i id="sauce-toggle-icon-mob" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                        <i id="sauce-toggle-icon-mob" class="fa-solid fa-chevron-up transition-transform duration-200"></i>
                     </button>
                 </div>
                 <div class="flex items-center justify-between w-full sm:w-auto gap-4">
@@ -177,7 +194,7 @@
                         </button>
                     </form>
                     <button type="button" class="hidden sm:flex text-slate-400 hover:text-slate-600 p-1 items-center justify-center">
-                        <i id="sauce-toggle-icon" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                        <i id="sauce-toggle-icon" class="fa-solid fa-chevron-up transition-transform duration-200"></i>
                     </button>
                 </div>
             </div>
@@ -206,6 +223,7 @@
         </div>
     </main>
 
+    <!-- Ingredient Add/Edit Modal -->
     <div id="ingredient-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-xl border border-slate-100">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
@@ -279,6 +297,7 @@
         </div>
     </div>
 
+    <!-- Edit Spice/Sauce Modal -->
     <div id="sauce-edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100">
             <h3 id="sauce-modal-title" class="text-lg font-bold text-slate-900 mb-4">Edit Item</h3>
@@ -299,6 +318,36 @@
         </div>
     </div>
 
+    <!-- Home Screen Guide Modal -->
+    <div id="home-guide-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                    <i class="fa-solid fa-mobile-screen text-amber-600 mr-2"></i>Save to Home Screen
+                </h3>
+                <button onclick="closeHomeGuide()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-sm text-slate-600">
+                <p>If Chrome shows <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">content://...</code> in the address bar, Chrome blocks adding it directly to your home screen.</p>
+                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-amber-900 text-xs space-y-2">
+                    <p class="font-bold flex items-center"><i class="fa-solid fa-lightbulb mr-1.5 text-amber-600"></i> How to fix this in 10 seconds:</p>
+                    <ol class="list-decimal list-inside space-y-1.5">
+                        <li>Save your HTML file into your phone's <b>Download</b> folder.</li>
+                        <li>Open your phone's <b>Downloads</b> app or a file manager, tap the file, and choose <b>Chrome</b> to open it.</li>
+                        <li>The URL will now start with <code class="bg-amber-100 px-1 rounded font-mono">file:///...</code> instead of <code class="bg-amber-100 px-1 rounded font-mono">content://</code>.</li>
+                        <li>Tap Chrome's menu (3 dots top-right) and select <b>"Add to Home screen"</b>!</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeHomeGuide()" class="px-5 py-2 rounded-xl text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition cursor-pointer">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-sm">
         <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
         <span id="toast-message">Success message</span>
@@ -358,16 +407,43 @@
             index === self.findIndex(t => t.name.toLowerCase().trim() === s.name.toLowerCase().trim())
         );
 
-        let isSpiceRackOpen = true;
-        let isSauceRackOpen = true;
+        let isSpiceRackOpen = localStorage.getItem('pantry_spice_rack_open') !== null 
+            ? JSON.parse(localStorage.getItem('pantry_spice_rack_open')) 
+            : true;
+
+        let isSauceRackOpen = localStorage.getItem('pantry_sauce_rack_open') !== null 
+            ? JSON.parse(localStorage.getItem('pantry_sauce_rack_open')) 
+            : true;
+
         let editingType = 'sauce';
         let editingIndex = null;
 
         window.onload = function() {
+            // Check if opened via content:// URI
+            if (window.location.protocol === 'content:') {
+                document.getElementById('content-uri-banner').classList.remove('hidden');
+            }
+
             renderPantry();
             renderSpices();
             renderSauces();
+
+            // Restore collapsible states
+            if (!isSpiceRackOpen) {
+                toggleSpiceRack();
+            }
+            if (!isSauceRackOpen) {
+                toggleSauceRack();
+            }
         };
+
+        function openHomeGuide() {
+            document.getElementById('home-guide-modal').classList.remove('hidden');
+        }
+
+        function closeHomeGuide() {
+            document.getElementById('home-guide-modal').classList.add('hidden');
+        }
 
         function exportData() {
             const data = {
@@ -418,35 +494,37 @@
 
         function toggleSpiceRack() {
             isSpiceRackOpen = !isSpiceRackOpen;
+            localStorage.setItem('pantry_spice_rack_open', JSON.stringify(isSpiceRackOpen));
             const content = document.getElementById('spice-rack-content');
             const icon = document.getElementById('spice-toggle-icon');
             const iconMob = document.getElementById('spice-toggle-icon-mob');
             
             if (isSpiceRackOpen) {
                 content.classList.remove('hidden');
-                if (icon) icon.classList.remove('rotate-180');
-                if (iconMob) iconMob.classList.remove('rotate-180');
+                if (icon) { icon.classList.remove('rotate-180'); icon.classList.add('rotate-0'); }
+                if (iconMob) { iconMob.classList.remove('rotate-180'); iconMob.classList.add('rotate-0'); }
             } else {
                 content.classList.add('hidden');
-                if (icon) icon.classList.add('rotate-180');
-                if (iconMob) iconMob.classList.add('rotate-180');
+                if (icon) { icon.classList.add('rotate-180'); icon.classList.remove('rotate-0'); }
+                if (iconMob) { iconMob.classList.add('rotate-180'); iconMob.classList.remove('rotate-0'); }
             }
         }
 
         function toggleSauceRack() {
             isSauceRackOpen = !isSauceRackOpen;
+            localStorage.setItem('pantry_sauce_rack_open', JSON.stringify(isSauceRackOpen));
             const content = document.getElementById('sauce-rack-content');
             const icon = document.getElementById('sauce-toggle-icon');
             const iconMob = document.getElementById('sauce-toggle-icon-mob');
             
             if (isSauceRackOpen) {
                 content.classList.remove('hidden');
-                if (icon) icon.classList.remove('rotate-180');
-                if (iconMob) iconMob.classList.remove('rotate-180');
+                if (icon) { icon.classList.remove('rotate-180'); icon.classList.add('rotate-0'); }
+                if (iconMob) { iconMob.classList.remove('rotate-180'); iconMob.classList.add('rotate-0'); }
             } else {
                 content.classList.add('hidden');
-                if (icon) icon.classList.add('rotate-180');
-                if (iconMob) iconMob.classList.add('rotate-180');
+                if (icon) { icon.classList.add('rotate-180'); icon.classList.remove('rotate-0'); }
+                if (iconMob) { iconMob.classList.add('rotate-180'); iconMob.classList.remove('rotate-0'); }
             }
         }
 
@@ -835,7 +913,7 @@
                             <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date set'}</span>
                             <div class="flex items-center space-x-2">
                                 <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
-                                    <i class="fa-solid fa-pen"></i>
+                                    <i class="fa-solid fa-pen">x</i>
                                 </button>
                                 <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
                                     <i class="fa-solid fa-trash"></i>
@@ -853,4 +931,3 @@
     </script>
 </body>
 </html>
-```
