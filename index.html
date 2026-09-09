@@ -17,25 +17,12 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; color: black !important; }
-            #pantry-grid { display: block !important; }
+            #pantry-grid, #pantry-compact-list { display: block !important; }
             .print-card { break-inside: avoid; border: 1px solid #ccc !important; margin-bottom: 1rem; box-shadow: none !important; }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-
-    <!-- Content URI Warning Banner (Shows if opened via Files app content:// link) -->
-    <div id="content-uri-banner" class="hidden bg-amber-500 text-white px-4 py-3 text-xs sm:text-sm font-medium shadow-md relative z-40 no-print">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div class="flex items-center space-x-2 text-center sm:text-left">
-                <i class="fa-solid fa-triangle-exclamation text-amber-100 text-lg flex-shrink-0"></i>
-                <span><b>Cannot Add to Home Screen?</b> Chrome blocks "content://" links. Save the file to your <b>Downloads</b> folder and open it via a file manager.</span>
-            </div>
-            <button onclick="openHomeGuide()" class="bg-white text-amber-900 hover:bg-amber-50 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm whitespace-nowrap cursor-pointer">
-                View Quick Fix Guide
-            </button>
-        </div>
-    </div>
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -118,7 +105,7 @@
             <button onclick="setStatusFilter('all')" class="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer">Clear Filter</button>
         </div>
 
-        <!-- Search and Filter Bar -->
+        <!-- Search and Filter Bar (Moved Above Racks) -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
             <div class="relative flex-1 max-w-md">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -126,7 +113,7 @@
                 </span>
                 <input type="text" id="search-input" oninput="filterItems()" placeholder="Search ingredients (e.g., flour, butter)..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm">
             </div>
-            <div class="flex items-center space-x-3 overflow-x-auto pb-2 sm:pb-0">
+            <div class="flex flex-wrap items-center gap-3">
                 <select id="category-filter" onchange="filterItems()" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
                     <option value="">All Categories</option>
                     <option value="Grains & Pasta">Grains & Pasta</option>
@@ -137,6 +124,16 @@
                     <option value="Fridge Items">Fridge Items</option>
                     <option value="Other">Other</option>
                 </select>
+
+                <!-- View Mode Toggle -->
+                <div class="flex items-center bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
+                    <button onclick="setViewMode('grid')" id="btn-view-grid" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5" title="Grid Card View">
+                        <i class="fa-solid fa-grip"></i><span class="hidden sm:inline">Cards</span>
+                    </button>
+                    <button onclick="setViewMode('compact')" id="btn-view-compact" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5" title="Quick Summary List">
+                        <i class="fa-solid fa-list"></i><span class="hidden sm:inline">Quick List</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -206,9 +203,22 @@
             </div>
         </div>
 
-        <!-- Pantry Items Grid -->
+        <!-- Pantry Items Grid (Card View) -->
         <div id="pantry-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Dynamically populated cards -->
+        </div>
+
+        <!-- Pantry Items Compact List (Quick Summary View) -->
+        <div id="pantry-compact-list" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider"><i class="fa-solid fa-list mr-2 text-amber-600"></i>Pantry Quick Summary</h3>
+                <span id="compact-count" class="text-xs font-semibold text-slate-500">0 items</span>
+            </div>
+            <div class="divide-y divide-slate-100 overflow-x-auto">
+                <div id="compact-items-container">
+                    <!-- Dynamically populated rows -->
+                </div>
+            </div>
         </div>
 
         <!-- Empty State -->
@@ -319,35 +329,6 @@
         </div>
     </div>
 
-    <!-- Home Screen Guide Modal -->
-    <div id="home-guide-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center">
-                    <i class="fa-solid fa-mobile-screen text-amber-600 mr-2"></i>Save to Home Screen
-                </h3>
-                <button onclick="closeHomeGuide()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="space-y-3 text-sm text-slate-600">
-                <p>If Chrome shows <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">content://...</code> in the address bar, Chrome blocks adding it directly to your home screen.</p>
-                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-amber-900 text-xs space-y-2">
-                    <p class="font-bold flex items-center"><i class="fa-solid fa-lightbulb mr-1.5 text-amber-600"></i> How to fix this in 10 seconds:</p>
-                    <ol class="list-decimal list-inside space-y-1.5">
-                        <li>Save your HTML file into your phone's <b>Download</b> folder.</li>
-                        <li>Open your phone's <b>Downloads</b> app or a file manager, tap the file, and choose <b>Chrome</b> to open it.</li>
-                        <li>The URL will now start with <code class="bg-amber-100 px-1 rounded font-mono">file:///...</code> instead of <code class="bg-amber-100 px-1 rounded font-mono">content://</code>.</li>
-                        <li>Tap Chrome's menu (3 dots top-right) and select <b>"Add to Home screen"</b>!</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="closeHomeGuide()" class="px-5 py-2 rounded-xl text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition cursor-pointer">Got it</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-sm">
         <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -417,24 +398,41 @@
             : true;
 
         let currentStatusFilter = 'all'; // 'all', 'expiring', 'expired'
+        let currentView = localStorage.getItem('pantry_view_mode') || 'grid'; // 'grid', 'compact'
         let editingType = 'sauce';
         let editingIndex = null;
 
         window.onload = function() {
-            // Check if opened via content:// URI
-            if (window.location.protocol === 'content:') {
-                document.getElementById('content-uri-banner').classList.remove('hidden');
-            }
-
             renderPantry();
             renderSpices();
             renderSauces();
 
-            // Explicitly apply collapsible states on load
             updateSpiceRackUI();
             updateSauceRackUI();
             updateStatCardStyles();
+            updateViewModeUI();
         };
+
+        function setViewMode(mode) {
+            currentView = mode;
+            localStorage.setItem('pantry_view_mode', currentView);
+            updateViewModeUI();
+            filterItems();
+        }
+
+        function updateViewModeUI() {
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnCompact = document.getElementById('btn-view-compact');
+            if (!btnGrid) return;
+
+            if (currentView === 'compact') {
+                btnGrid.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer flex items-center space-x-1.5";
+                btnCompact.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 text-white shadow-sm transition cursor-pointer flex items-center space-x-1.5";
+            } else {
+                btnGrid.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 text-white shadow-sm transition cursor-pointer flex items-center space-x-1.5";
+                btnCompact.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer flex items-center space-x-1.5";
+            }
+        }
 
         function setStatusFilter(filter) {
             currentStatusFilter = currentStatusFilter === filter ? 'all' : filter;
@@ -455,14 +453,6 @@
                 (currentStatusFilter === 'expiring' ? 'border-amber-500 ring-2 ring-amber-100' : 'border-slate-200 hover:border-amber-300');
             cardExpired.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 cursor-pointer transition " + 
                 (currentStatusFilter === 'expired' ? 'border-rose-500 ring-2 ring-rose-100' : 'border-slate-200 hover:border-rose-300');
-        }
-
-        function openHomeGuide() {
-            document.getElementById('home-guide-modal').classList.remove('hidden');
-        }
-
-        function closeHomeGuide() {
-            document.getElementById('home-guide-modal').classList.add('hidden');
         }
 
         function exportData() {
@@ -907,6 +897,9 @@
 
         function displayItems(items) {
             const grid = document.getElementById('pantry-grid');
+            const compactList = document.getElementById('pantry-compact-list');
+            const compactContainer = document.getElementById('compact-items-container');
+            const compactCount = document.getElementById('compact-count');
             const emptyState = document.getElementById('empty-state');
             
             let total = pantryItems.length;
@@ -932,56 +925,110 @@
 
             if (items.length === 0) {
                 grid.innerHTML = '';
+                compactContainer.innerHTML = '';
+                grid.classList.add('hidden');
+                compactList.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
-            grid.innerHTML = items.map(item => {
-                const status = getExpiryStatus(item.expiryDate);
-                const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
-                return `
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition group print-card">
-                        <div class="p-6">
-                            <div class="flex items-start justify-between gap-3 mb-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                                    ${item.category}
-                                </span>
-                                <span class="px-3 py-1 rounded-full text-xs font-medium shadow-sm ${status.class}">
-                                    ${status.text}
-                                </span>
-                            </div>
-                            <h3 class="font-bold text-slate-900 text-lg mb-2">${item.name}</h3>
-                            <div class="flex items-center space-x-2 mb-3">
-                                <span class="text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-200/60 px-3 py-1 rounded-xl">
-                                    <i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i> ${item.quantity} ${item.unit}
-                                </span>
-                            </div>
-                            <div class="mb-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="flex justify-between items-center text-xs mb-1.5">
-                                    <span class="font-medium text-slate-600"><i class="fa-solid fa-chart-pie mr-1 text-amber-600"></i>Amount Left</span>
-                                    <span class="font-bold text-slate-800">${level}%</span>
+
+            if (currentView === 'compact') {
+                grid.classList.add('hidden');
+                compactList.classList.remove('hidden');
+                compactCount.textContent = `${items.length} item${items.length === 1 ? '' : 's'}`;
+
+                compactContainer.innerHTML = items.map(item => {
+                    const status = getExpiryStatus(item.expiryDate);
+                    const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
+                    return `
+                        <div class="px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition print-card">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <h4 class="font-bold text-slate-900 text-sm leading-snug">${item.name}</h4>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">${item.category}</span>
                                 </div>
-                                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: ${level}%"></div>
+                                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                    <span class="font-semibold text-amber-800"><i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i>${item.quantity} ${item.unit}</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date'}</span>
                                 </div>
                             </div>
-                            ${item.notes ? `<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100"><i class="fa-solid fa-note-sticky mr-1.5 text-slate-400"></i>${item.notes}</p>` : ''}
-                        </div>
-                        <div class="px-6 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between no-print">
-                            <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date set'}</span>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                            <div class="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                                <div class="hidden md:flex flex-col items-end w-24">
+                                    <div class="flex justify-between items-center text-[10px] mb-1 w-full">
+                                        <span class="text-slate-500 font-medium">Left</span>
+                                        <span class="font-bold text-slate-800">${level}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-amber-500 h-full rounded-full" style="width: ${level}%"></div>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-medium ${status.class}">${status.text}</span>
+                                <div class="flex items-center space-x-1.5 no-print">
+                                    <button onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+
+            } else {
+                compactList.classList.add('hidden');
+                grid.classList.remove('hidden');
+
+                grid.innerHTML = items.map(item => {
+                    const status = getExpiryStatus(item.expiryDate);
+                    const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
+                    return `
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition group print-card">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                                        ${item.category}
+                                    </span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium shadow-sm ${status.class}">
+                                        ${status.text}
+                                    </span>
+                                </div>
+                                <h3 class="font-bold text-slate-900 text-lg mb-2">${item.name}</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <span class="text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-200/60 px-3 py-1 rounded-xl">
+                                        <i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i> ${item.quantity} ${item.unit}
+                                    </span>
+                                </div>
+                                <div class="mb-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <div class="flex justify-between items-center text-xs mb-1.5">
+                                        <span class="font-medium text-slate-600"><i class="fa-solid fa-chart-pie mr-1 text-amber-600"></i>Amount Left</span>
+                                        <span class="font-bold text-slate-800">${level}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: ${level}%"></div>
+                                    </div>
+                                </div>
+                                ${item.notes ? `<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100"><i class="fa-solid fa-note-sticky mr-1.5 text-slate-400"></i>${item.notes}</p>` : ''}
+                            </div>
+                            <div class="px-6 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between no-print">
+                                <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date set'}</span>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
         function renderPantry() {
