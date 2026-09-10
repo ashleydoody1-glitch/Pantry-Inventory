@@ -81,7 +81,7 @@
 
         <!-- PANTRY VIEW CONTAINER -->
         <div id="view-pantry">
-            <!-- Compact Statistics Row (Compact Cards) -->
+            <!-- Compact Statistics Row -->
             <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
                 <div onclick="setStatusFilter('all')" id="stat-card-all" class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-2.5 cursor-pointer transition">
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs sm:text-sm font-bold shrink-0">
@@ -400,7 +400,7 @@
             ? JSON.parse(localStorage.getItem('pantry_items')) 
             : [
                 { id: '1', name: 'Organic Basmati Rice', category: 'Grains & Pasta', quantity: 2, unit: 'kg', expiryDate: '2027-08-15', notes: 'Store in airtight container', remainingPercent: 100 },
-                { id: '2', name: 'Spanish Extra Virgin Olive Oil', category: 'Oils & Condiments', quantity: 750, unit: 'ml', expiryDate: '2026-11-20', notes: 'Cold pressed', remainingPercent: 60 },
+                { id: '2', name: 'Spanish Extra Virgin Olive Oil', category: 'Oils & Condiments', quantity: 750, unit: 'ml', expiryDate: '2026-11-20', notes: 'Cold pressed', remainingPercent: 8 },
                 { id: '3', name: 'Unsalted Butter', category: 'Fridge Items', quantity: 250, unit: 'g', expiryDate: '2026-03-30', notes: 'Keep refrigerated', remainingPercent: 80 }
             ];
 
@@ -751,7 +751,7 @@
                                     ${spice.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${spice.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
                                 </td>
                                 <td class="py-3 px-3 text-right">
-                                    <div class="flex items-center justify-end space-x-1.5 flex-row">
+                                    <div class="inline-flex items-center space-x-1.5">
                                         <button type="button" onclick="editItemModal('spice', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
@@ -796,7 +796,7 @@
                                     ${sauce.qty ? `<span class="bg-amber-50 text-amber-900 border border-amber-200/60 px-2.5 py-1 rounded-lg font-medium">${sauce.qty}</span>` : '<span class="text-slate-400 italic">None</span>'}
                                 </td>
                                 <td class="py-3 px-3 text-right">
-                                    <div class="flex items-center justify-end space-x-1.5 flex-row">
+                                    <div class="inline-flex items-center space-x-1.5">
                                         <button type="button" onclick="editItemModal('sauce', ${idx})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
@@ -814,7 +814,7 @@
 
         // Shopping List Functions
         function addShoppingItem(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             const nameInput = document.getElementById('shopping-item-name');
             const qtyInput = document.getElementById('shopping-item-qty');
             const catSelect = document.getElementById('shopping-item-category');
@@ -834,9 +834,28 @@
             });
 
             saveShoppingToStorage();
-            nameInput.value = '';
-            qtyInput.value = '';
+            if (nameInput) nameInput.value = '';
+            if (qtyInput) qtyInput.value = '';
             showToast('Added to shopping list!');
+        }
+
+        function addPantryItemToShopping(id) {
+            const item = pantryItems.find(i => i.id === id);
+            if (!item) return;
+            const exists = shoppingList.some(s => s.name.toLowerCase() === item.name.toLowerCase() && !s.checked);
+            if (!exists) {
+                shoppingList.unshift({
+                    id: 'shop_' + Date.now() + Math.random(),
+                    name: item.name,
+                    quantity: `${item.quantity} ${item.unit}`,
+                    category: item.category,
+                    checked: false
+                });
+                saveShoppingToStorage();
+                showToast(`Added ${item.name} to shopping list!`);
+            } else {
+                showToast(`${item.name} is already in your shopping list`, 'error');
+            }
         }
 
         function toggleShoppingItem(id) {
@@ -937,9 +956,11 @@
                                     ${item.quantity || '<span class="text-slate-400 italic">None</span>'}
                                 </td>
                                 <td class="py-3.5 px-4 text-right">
-                                    <button type="button" onclick="deleteShoppingItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    <div class="inline-flex items-center space-x-1.5">
+                                        <button type="button" onclick="deleteShoppingItem('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `).join('')}
@@ -1126,6 +1147,7 @@
                 compactCount.textContent = `${items.length} item${items.length === 1 ? '' : 's'}`;
 
                 compactContainer.innerHTML = items.map((item, index) => {
+                    const level = item.remainingPercent !== undefined ? item.remainingPercent : 100;
                     return `
                         <div class="px-4 sm:px-6 py-3 transition print-card">
                             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1133,7 +1155,8 @@
                                     <h4 class="font-bold text-slate-900 text-sm leading-snug break-words">${item.name}</h4>
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 shrink-0">${item.category}</span>
                                 </div>
-                                <div class="flex items-center space-x-1.5 no-print shrink-0 flex-row">
+                                <div class="inline-flex items-center space-x-1.5 no-print shrink-0">
+                                    ${level <= 20 ? `<button type="button" onclick="addPantryItemToShopping('${item.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition inline-flex items-center space-x-1 cursor-pointer" title="Low Stock - Add to Shopping List"><i class="fa-solid fa-cart-plus"></i><span class="hidden sm:inline">Restock</span></button>` : ''}
                                     <button type="button" onclick="openModal('${item.id}')" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
@@ -1146,8 +1169,10 @@
                                 <span class="font-semibold text-amber-800"><i class="fa-solid fa-scale-balanced mr-1 text-amber-600"></i>${item.quantity} ${item.unit}</span>
                                 <span>•</span>
                                 <span><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No expiry'}</span>
+                                <span>•</span>
+                                <span class="font-bold ${level <= 10 ? 'text-rose-600' : 'text-slate-600'}">${level}% left</span>
                             </div>
-                            ${index < items.length - 1 ? '<div class="border-t border-slate-100 pt-2.5 mt-2.5"></div>' : ''}
+                            ${index < items.length - 1 ? '<div class="border-t border-slate-100 pt-3 mt-3"></div>' : ''}
                         </div>
                     `;
                 }).join('');
@@ -1175,21 +1200,27 @@
                                 <div class="mb-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
                                     <div class="flex justify-between items-center text-xs mb-1.5">
                                         <span class="font-medium text-slate-600"><i class="fa-solid fa-chart-pie mr-1 text-amber-600"></i>Amount Left</span>
-                                        <span class="font-bold text-slate-800">${level}%</span>
+                                        <span class="font-bold ${level <= 10 ? 'text-rose-600' : 'text-slate-800'}">${level}%</span>
                                     </div>
                                     <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: ${level}%"></div>
+                                        <div class="${level <= 10 ? 'bg-rose-500' : 'bg-amber-500'} h-full rounded-full transition-all duration-300" style="width: ${level}%"></div>
                                     </div>
+                                    ${level <= 20 ? `
+                                        <button type="button" onclick="addPantryItemToShopping('${item.id}')" class="mt-2.5 w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-1.5 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <span>Add to Shopping List</span>
+                                        </button>
+                                    ` : ''}
                                 </div>
                                 ${item.notes ? `<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100"><i class="fa-solid fa-note-sticky mr-1.5 text-slate-400"></i>${item.notes}</p>` : ''}
                             </div>
                             <div class="px-6 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between no-print">
                                 <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${item.expiryDate ? item.expiryDate : 'No date set'}</span>
-                                <div class="flex items-center space-x-1.5 flex-row">
-                                    <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
+                                <div class="inline-flex items-center space-x-1.5">
+                                    <button onclick="openModal('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Edit">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
+                                    <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 inline-flex items-center justify-center text-xs transition shadow-sm cursor-pointer" title="Delete">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
